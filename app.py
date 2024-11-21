@@ -17,24 +17,24 @@ def convert():
     data = request.get_json()
     
     # Verifica se os dados foram recebidos corretamente
-    if not data or 'coordinates' not in data:
-        return jsonify({"error": "Nenhuma coordenada fornecida"}), 400
+    if not data or 'coordinates' not in data or 'filename' not in data:
+        return jsonify({"error": "Dados incompletos fornecidos"}), 400
 
-    coordinates = data['coordinates']  # Lista de coordenadas [[lat1, lon1], [lat2, lon2], ...]
+    coordinates = data['coordinates']
+    filename = data['filename']
+    
+    if not filename.endswith('.shp'):
+        filename += '.shp'
 
-    # Definindo o nome base para o shapefile
-    shapefile_base = 'drawing'
-    shapefile_path = os.path.join(OUTPUT_FOLDER, shapefile_base + '.shp')
+    shapefile_path = os.path.join(OUTPUT_FOLDER, filename)
 
-    # Criando o schema do shapefile para armazenar dados do tipo LineString
     schema = {
         'geometry': 'LineString',
         'properties': {'id': 'int'},
     }
 
-    # Criando o shapefile
     with fiona.open(shapefile_path, 'w', driver='ESRI Shapefile', schema=schema, crs=from_epsg(4326)) as shp:
-        line = LineString([(lon, lat) for lat, lon in coordinates])  # Linha a partir das coordenadas
+        line = LineString([(lon, lat) for lat, lon in coordinates])
         shp.write({
             'geometry': {
                 'type': 'LineString',
@@ -43,11 +43,12 @@ def convert():
             'properties': {'id': 1},
         })
 
-    # Retorna o caminho do shapefile gerado
-    return jsonify({"shapefilePath": shapefile_path}), 200
+    return jsonify({"shapefilePath": filename}), 200
+
 
 @app.route('/download/<filename>')
 def download(filename):
+    # Corrigir para o diretório correto, sem caminho absoluto
     return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)
 
 if __name__ == '__main__':
