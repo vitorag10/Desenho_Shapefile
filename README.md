@@ -17,12 +17,14 @@ O projeto tem a seguinte estrutura de arquivos e pastas:
 
 bash
 Copiar código
+```
 /<diretório-do-projeto>
 │
 ├── app.py              # Código da API em Flask
 ├── /uploads            # Pasta para arquivos enviados (não utilizada diretamente)
 ├── /outputs            # Pasta onde os shapefiles gerados serão armazenados
 └── requirements.txt    # Arquivo com as dependências do projeto
+```
 Requisitos
 Criar e ativar o ambiente virtual (se necessário):
 
